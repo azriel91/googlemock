@@ -11,11 +11,19 @@ option(BUILD_SHARED_LIBS "Build shared libraries (DLLs)." OFF)
 
 option(gmock_build_tests "Build all of Google Mock's own tests." OFF)
 
+include(conanbuildinfo.cmake)
+conan_basic_setup()
+
 # A directory to find Google Test sources.
-if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/gtest/CMakeLists.txt")
-  set(gtest_dir gtest)
-else()
-  set(gtest_dir ../gtest)
+unset(gtest_dir CACHE)
+find_path(gtest_dir "include/gtest/gtest.h" PATHS ${CONAN_INCLUDE_DIRS})
+if(NOT gtest_dir)
+  message(WARNING "Could not find google test directory from Conan. Falling back to default behaviour.")
+  if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/gtest/CMakeLists.txt")
+    set(gtest_dir gtest)
+  else()
+    set(gtest_dir ../gtest)
+  endif()
 endif()
 
 # Defines pre_project_set_up_hermetic_build() and set_up_hermetic_build().
