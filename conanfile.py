@@ -8,35 +8,38 @@ class GoogleMockConan(ConanFile):
     generators = ['cmake']
     exports = subprocess.check_output(['git', 'ls-files']).split()
     options = {
-        'BUILD_SHARED_LIBS':      'OFF', # Build shared libraries (DLLs).
-        'gmock_build_tests':      'OFF', # Build all of Google Mock's own tests.
-        'gtest_disable_pthreads': 'OFF', # Disable uses of pthreads in gtest.
+        'BUILD_SHARED_LIBS':      ['ON', 'OFF'], # Build shared libraries (DLLs).
+        'gmock_build_tests':      ['ON', 'OFF'], # Build all of Google Mock's own tests.
+        'gtest_disable_pthreads': ['ON', 'OFF'], # Disable uses of pthreads in gtest.
 
         # Set this to 0 if your project already uses a tuple library, and GTest should use that library
         # Set this to 1 if GTest should use its own tuple library
-        'GTEST_USE_OWN_TR1_TUPLE': None,
+        'GTEST_USE_OWN_TR1_TUPLE': [None, '0', '1'],
 
         # Set this to 0 if GTest should not use tuple at all. All tuple features will be disabled
-        'GTEST_HAS_TR1_TUPLE': None,
+        'GTEST_HAS_TR1_TUPLE': [None, '0'],
 
         # If GTest incorrectly detects whether or not the pthread library exists on your system, you can force it
         # by setting this option value to:
         #   1 - if pthread does actually exist
         #   0 - if pthread does not actually exist
-        'GTEST_HAS_PTHREAD': None
+        'GTEST_HAS_PTHREAD': [None, '0', '1']
     }
+    default_options = (
+                        'BUILD_SHARED_LIBS=OFF',
+                        'gmock_build_tests=OFF',
+                        'gtest_disable_pthreads=OFF',
+                        'GTEST_USE_OWN_TR1_TUPLE=None',
+                        'GTEST_HAS_TR1_TUPLE=None',
+                        'GTEST_HAS_PTHREAD=None'
+                      )
 
     build_dir = 'build'
 
     def requirements(self):
-        # We are not passing through options for the sake of compiling google test with them, as google mock is not
-        # linked to the built gtest library, but in case google mock is declared as a dependency, and the user has tests
-        # that link to gtest only.
-        pass_through_options = dict((opt, self.options[opt]) for opt in ['gtest_disable_pthreads',
-                                                                        'GTEST_USE_OWN_TR1_TUPLE',
-                                                                        'GTEST_HAS_TR1_TUPLE',
-                                                                        'GTEST_HAS_PTHREAD'])
-        self.requires('googletest/1.7.0@demo/testing', pass_through_options)
+        # We no longer pass through options to googletest as the API for this function has changed.
+        # See history for this file
+        self.requires('googletest/1.7.0@azriel91/testing')
 
     def build(self):
         option_defines = ' '.join("-D%s=%s" % (opt, val) for (opt, val) in self.options.iteritems() if val is not None)

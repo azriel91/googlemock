@@ -16,7 +16,7 @@ conan_basic_setup()
 
 # A directory to find Google Test sources.
 unset(gtest_dir CACHE)
-find_path(gtest_dir "include/gtest/gtest.h" PATHS ${CONAN_INCLUDE_DIRS})
+find_path(gtest_dir "include/gtest/gtest.h" PATHS ${CONAN_GOOGLETEST_ROOT})
 if(NOT gtest_dir)
   message(WARNING "Could not find google test directory from Conan. Falling back to default behaviour.")
   if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/gtest/CMakeLists.txt")
